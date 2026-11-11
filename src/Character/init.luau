@@ -37,6 +37,8 @@ export type Character = {
     TweenComponents: boolean,
     UseIKControl: boolean,
     IsLying: boolean?,
+    IsFlying: boolean?,
+    FlightBodyDirection: Vector3?,
     PreventArmDisconnection: boolean,
     Parts: {[string]: BasePart},
     Motors: {[string]: Motor6D},
@@ -116,6 +118,8 @@ function Character.new(CharacterModel: Model): Character
                         LeftFootCFrame = ReplicationTrackerData and ReplicationTrackerData.LeftFoot,
                         RightFootCFrame = ReplicationTrackerData and ReplicationTrackerData.RightFoot,
                         IsLying = if self.IsLying then 1 else nil,
+                        IsFlying = if self.IsFlying then 1 else nil,
+                        FlightBodyCFrame = if self.IsFlying and self.FlightBodyDirection then CFrame.lookAt(Vector3.zero, self.FlightBodyDirection) else nil,
                     }
                     if not VRService.AvatarGestures then
                         NewTrackerData.HeadCFrame = ReplicationCFrames.HeadCFrame
@@ -441,6 +445,17 @@ function Character.UpdateFromInputs(self: Character, HeadControllerCFrame: CFram
     local HeadCFrame = self.Head:GetHeadCFrame(CurrentHeadControllerCFrame)
     local Lying = (self.IsLying == true)
     local NeckCFrame = self.Head:GetNeckCFrame(CurrentHeadControllerCFrame, nil, Lying)
+
+    --Flying with the Superman pose: lay the body flat, face down, along the flight direction.
+    local FlightBodyDirection = self.FlightBodyDirection
+    if self.IsFlying and FlightBodyDirection then
+        local BodyRight = FlightBodyDirection:Cross(Vector3.yAxis)
+        if BodyRight.Magnitude > 0.001 then
+            NeckCFrame = CFrame.fromMatrix(NeckCFrame.Position, BodyRight.Unit, FlightBodyDirection)
+            Lying = true
+        end
+    end
+    local NoLegIK = (Lying or self.IsFlying == true)
     local LowerTorsoCFrame: CFrame, UpperTorsoCFrame = self.Torso:GetTorsoCFrames(NeckCFrame, Lying)
     local JointCFrames = self.Torso:GetAppendageJointCFrames(LowerTorsoCFrame, UpperTorsoCFrame)
 
@@ -502,13 +517,13 @@ function Character.UpdateFromInputs(self: Character, HeadControllerCFrame: CFram
             self.LeftArm:MoveToWorld(LeftHandControllerCFrame)
             self.RightArm:MoveToWorld(RightHandControllerCFrame)
         end
-        if not Lying and not IsWalking and (not AvatarGesturesEnabled or LeftFootTrackerActive) then
+        if not NoLegIK and not IsWalking and (not AvatarGesturesEnabled or LeftFootTrackerActive) then
             self.LeftLeg:MoveToWorld(LeftFoot)
             self.LeftLeg:Enable()
         else
             self.LeftLeg:Disable()
         end
-        if not Lying and not IsWalking and (not AvatarGesturesEnabled or RightFootTrackerActive) then
+        if not NoLegIK and not IsWalking and (not AvatarGesturesEnabled or RightFootTrackerActive) then
             self.RightLeg:MoveToWorld(RightFoot)
             self.RightLeg:Enable()
         else
@@ -525,7 +540,7 @@ function Character.UpdateFromInputs(self: Character, HeadControllerCFrame: CFram
             self:SetTransform("LeftElbow", "LeftElbowRigAttachment", "LeftUpperArm", "LeftLowerArm", LeftUpperArmCFrame, LeftLowerArmCFrame)
             self:SetTransform("LeftWrist", "LeftWristRigAttachment", "LeftLowerArm", "LeftHand", LeftLowerArmCFrame, LeftHandCFrame)
         end
-        if not Lying and not IsWalking and (not AvatarGesturesEnabled or LeftFootTrackerActive) then
+        if not NoLegIK and not IsWalking and (not AvatarGesturesEnabled or LeftFootTrackerActive) then
             local LeftUpperLegCFrame, LeftLowerLegCFrame, LeftFootCFrame = (self.LeftLeg :: any):GetAppendageCFrames(JointCFrames["LeftHip"], LeftFoot)
             self:SetTransform("LeftHip", "LeftHipRigAttachment", "LowerTorso", "LeftUpperLeg", LowerTorsoCFrame, LeftUpperLegCFrame)
             self:SetTransform("LeftKnee", "LeftKneeRigAttachment", "LeftUpperLeg", "LeftLowerLeg", LeftUpperLegCFrame, LeftLowerLegCFrame)
@@ -535,7 +550,7 @@ function Character.UpdateFromInputs(self: Character, HeadControllerCFrame: CFram
             self.CurrentMotor6DTransforms[self.Motors.LeftKnee] = nil
             self.CurrentMotor6DTransforms[self.Motors.LeftAnkle] = nil
         end
-        if not Lying and not IsWalking and (not AvatarGesturesEnabled or RightFootTrackerActive) then
+        if not NoLegIK and not IsWalking and (not AvatarGesturesEnabled or RightFootTrackerActive) then
             local RightUpperLegCFrame, RightLowerLegCFrame, RightFootCFrame = (self.RightLeg :: any):GetAppendageCFrames(JointCFrames["RightHip"], RightFoot)
             self:SetTransform("RightHip", "RightHipRigAttachment", "LowerTorso", "RightUpperLeg", LowerTorsoCFrame, RightUpperLegCFrame)
             self:SetTransform("RightKnee", "RightKneeRigAttachment", "RightUpperLeg", "RightLowerLeg", RightUpperLegCFrame, RightLowerLegCFrame)

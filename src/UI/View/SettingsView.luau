@@ -58,8 +58,8 @@ function SettingsView.new(View: BaseApiView.NexusInstanceApiBaseView): ()
     --Create the settings.
     local CameraSettingFrame = Instance.new("Frame")
     CameraSettingFrame.BackgroundTransparency = 1
-    CameraSettingFrame.Size = UDim2.new(0.8, 0,0.11, 0)
-    CameraSettingFrame.Position = UDim2.new(0.1, 0, 0.325, 0)
+    CameraSettingFrame.Size = UDim2.new(0.8, 0, 0.095, 0)
+    CameraSettingFrame.Position = UDim2.new(0.1, 0, 0.32, 0)
     CameraSettingFrame.Parent = Container
     self:PopulateSettingsFrame(CameraSettingFrame, "View", function()
         if VRService.AvatarGestures then
@@ -74,8 +74,8 @@ function SettingsView.new(View: BaseApiView.NexusInstanceApiBaseView): ()
 
     local MovementSettingFrame = Instance.new("Frame")
     MovementSettingFrame.BackgroundTransparency = 1
-    MovementSettingFrame.Size = UDim2.new(0.8, 0, 0.11, 0)
-    MovementSettingFrame.Position = UDim2.new(0.1, 0, 0.325 + (0.15 * 1), 0)
+    MovementSettingFrame.Size = UDim2.new(0.8, 0, 0.095, 0)
+    MovementSettingFrame.Position = UDim2.new(0.1, 0, 0.32 + (0.105 * 1), 0)
     MovementSettingFrame.Parent = Container
     self:PopulateSettingsFrame(MovementSettingFrame, "Control", "Movement.EnabledMovementMethods", function()
         return ControlService.ActiveController
@@ -85,8 +85,8 @@ function SettingsView.new(View: BaseApiView.NexusInstanceApiBaseView): ()
 
     local CursorSettingFrame = Instance.new("Frame")
     CursorSettingFrame.BackgroundTransparency = 1
-    CursorSettingFrame.Size = UDim2.new(0.8, 0, 0.11, 0)
-    CursorSettingFrame.Position = UDim2.new(0.1, 0, 0.325 + (0.15 * 2), 0)
+    CursorSettingFrame.Size = UDim2.new(0.8, 0, 0.095, 0)
+    CursorSettingFrame.Position = UDim2.new(0.1, 0, 0.32 + (0.105 * 2), 0)
     CursorSettingFrame.Parent = Container
     self:PopulateSettingsFrame(CursorSettingFrame, "Roblox VR Cursor", function()
         return DefaultCursorService.CursorOptionsList
@@ -95,6 +95,35 @@ function SettingsView.new(View: BaseApiView.NexusInstanceApiBaseView): ()
     end, function(NewValue)
         DefaultCursorService:SetCursorState(NewValue)
     end)
+
+    --Create the flight settings (not available with AvatarGestures).
+    if Settings:GetSetting("Flight.Enabled") ~= false and not VRService.AvatarGestures then
+        local FlightPoseSettingFrame = Instance.new("Frame")
+        FlightPoseSettingFrame.BackgroundTransparency = 1
+        FlightPoseSettingFrame.Size = UDim2.new(0.8, 0, 0.095, 0)
+        FlightPoseSettingFrame.Position = UDim2.new(0.1, 0, 0.32 + (0.105 * 3), 0)
+        FlightPoseSettingFrame.Parent = Container
+        self:PopulateSettingsFrame(FlightPoseSettingFrame, "Flight Pose", function()
+            return {"Superman", "Vertical", "FollowHead"}
+        end, function()
+            return Settings:GetSetting("Flight.Pose") or "Superman"
+        end, function(NewValue)
+            Settings:SetSetting("Flight.Pose", NewValue)
+        end)
+
+        local FlightHandSettingFrame = Instance.new("Frame")
+        FlightHandSettingFrame.BackgroundTransparency = 1
+        FlightHandSettingFrame.Size = UDim2.new(0.8, 0, 0.095, 0)
+        FlightHandSettingFrame.Position = UDim2.new(0.1, 0, 0.32 + (0.105 * 4), 0)
+        FlightHandSettingFrame.Parent = Container
+        self:PopulateSettingsFrame(FlightHandSettingFrame, "Flight Speed Hand", function()
+            return {"Right", "Left"}
+        end, function()
+            return Settings:GetSetting("Flight.DominantHand") or "Right"
+        end, function(NewValue)
+            Settings:SetSetting("Flight.DominantHand", NewValue)
+        end)
+    end
 
     --Create the callibration settings.
     local RecenterButton, RecenterText = TextButtonFactory:Create()

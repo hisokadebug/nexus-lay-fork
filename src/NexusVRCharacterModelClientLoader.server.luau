@@ -59,6 +59,8 @@ UpdateInputsPlayerBufferedRemoteEventReceiver:OnDataReceived(function(Player: Pl
     local Character = CharacterService:GetCharacter(Player)
     if Character then
         Character.IsLying = (Data.IsLying == 1)
+        Character.IsFlying = (Data.IsFlying == 1)
+        Character.FlightBodyDirection = (Data.FlightBodyCFrame and Data.FlightBodyCFrame.LookVector or nil)
         Character:UpdateFromInputs(Data.HeadCFrame, Data.LeftHandCFrame, Data.RightHandCFrame, Data.CurrentWalkspeed, {
             LeftFoot = Data.LeftFootCFrame,
             RightFoot = Data.RightFootCFrame,

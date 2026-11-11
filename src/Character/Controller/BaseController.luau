@@ -253,7 +253,9 @@ function BaseController.UpdateCharacter(self: BaseController): ()
     local HeadFloorHeight = VRHeadCFrame.Position.Y
     local LyingHeight = 1.5 * self.Character:GetHumanoidScale("BodyHeightScale")
     local HeadUpY = VRHeadCFrame.UpVector.Y
-    if self.Character.IsLying then
+    if self.Character.IsFlying then
+        --Flight controls the pose while flying.
+    elseif self.Character.IsLying then
         self.Character.IsLying = (HeadFloorHeight < LyingHeight * 1.5 and HeadUpY < 0.8)
     else
         self.Character.IsLying = (HeadFloorHeight < LyingHeight and HeadUpY < 0.5)

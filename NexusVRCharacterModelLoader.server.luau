@@ -60,6 +60,30 @@ local Configuration = {
         --Blur effect for snap turning and teleports.
         SnapTeleportBlur = true,
     },
+    Flight = {
+        --If true, players can fly (smooth locomotion only, not with VRService.AvatarGestures).
+        --Flying is toggled by holding both arms out to the sides (T-pose).
+        --The left thumbstick sets the direction relative to the head, and
+        --the distance of the dominant hand from the body sets the speed.
+        Enabled = true,
+
+        --Maximum flight speed in studs/second (FlightMaxSpeed).
+        MaxSpeed = 40,
+
+        --Dominant hand distance (studs) for 0 speed and for the max speed.
+        HandMinDistance = 1.2,
+        HandMaxDistance = 2.4,
+
+        --Default dominant hand ("Right" or "Left"), changeable in the menu.
+        DominantHand = "Right",
+
+        --Default body pose ("Superman", "Vertical", "FollowHead"), changeable in the menu.
+        Pose = "Superman",
+
+        --Seconds the T-pose must be held to start and to stop flying.
+        GestureHoldTime = 0.5,
+        ExitGestureHoldTime = 0.8,
+    },
     Menu = {
         --If true, a gesture will be active for opening
         --the Nexus VR Character Model menu. If you manually

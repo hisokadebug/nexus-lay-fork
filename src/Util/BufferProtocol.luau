@@ -39,6 +39,16 @@ local BUFFER_PROTOCOL_FIELDS = {
         Name = "IsLying",
         Type = "number",
     },
+
+    --Flying (IsFlying is 1 when flying, FlightBodyCFrame looks along the Superman pose direction). Also at the end to keep indices stable.
+    {
+        Name = "IsFlying",
+        Type = "number",
+    },
+    {
+        Name = "FlightBodyCFrame",
+        Type = "CFrame",
+    },
 }
 local FIELD_TYPE_TO_LENGTH = {
     ["number"] = 8,
@@ -61,6 +71,10 @@ export type BufferProtocolData = {
 
     --Lying down.
     IsLying: number?,
+
+    --Flying.
+    IsFlying: number?,
+    FlightBodyCFrame: CFrame?,
 }
 
 
